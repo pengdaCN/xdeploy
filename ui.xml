@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+对可以可以输入的属性，设置通用属性
+length 输入框的长度
+phrase 提示短语
+readonly 是否能够输入
+对于可以选择中的属性
+selected 是否默认被选中
+readonly 子项目或者整个选择框是否能够更改
+value 属性被选中后，返回绑定数据的值
+set 当属性被选中后，及把对应的数据设置未true，若选中被取消，则把对应的设置未false
+
+对于每个可输入，可选择的控件，都有一个bind属性，拥于绑定并值
+
+考虑每个原始是否添加比写的唯一id
+考虑如何绑定值
+
+-->
+<root>
+    <export>
+        <vars>
+            <var name="name"/>
+            <var name="passwd">123456</var>
+            <var name="site_name"/>
+            <var name="site_addr"/>
+            <var name="install_ty"/>
+            <var name="i_db_passwd"/>
+            <!--后续添加特性，可以省略，在bind参数时推断-->
+            <var name="i_db_enable_pubnet" type="bool"/>
+            <var name="i_db_enable_all_conn" type="bool"/>
+            <var name="c_db_addr"/>
+            <var name="c_db_username"/>
+            <var name="c_db_passwd"/>
+            <var name="c_db_name">my_db</var>
+
+            <var name="install_qq" type="bool"/>
+            <var name="install_wechat" type="bool"/>
+
+        </vars>
+    </export>
+    <!--输入框初步设计-->
+    <input bind="name" phrase="名字" length="20" vaildate="username"/>
+    <input bind="passwd" phrase="密码" vaildate="passwd" readonly="true">{{name}}</input>
+
+    <!--盒子，自动把里面的输入框做对齐-->
+    <box>
+        <input bind="site_name" phrase="网站名" length="10"/>
+        <input bind="site_addr" phrase="网站地址" length="20"/>
+    </box>
+
+    <!--单击选择其中的一个，选中之后，就只会展开改数据-->
+    <select bind="install_ty">
+        <!--按钮攀旁边的字-->
+        <item value="install" phrase="安装数据库">
+            <!--勾选按钮，只有true和false-->
+            <input phrase="数据库密码"/>
+            <check phrase="是否公开网络"/>
+            <check phrase="是否允许所有连接" selected="true"/>
+        </item>
+
+        <!--默认选中项目-->
+        <item value="conn" selected="true">
+            <input phrase="地址" length="10"/>
+            <input phrase="登录用户名" length="20">postgres</input>
+            <input phrase="登录密码" length="20"/>
+            <input phrase="连接数据库" length="10" readonly="true">{{c_db_name}}</input>
+        </item>
+    </select>
+
+    <!--复选框-->
+    <checkbox readonly="true">
+        <item set="install_qq" phrase="安装qq" selected="true" id="qq" disable="true"/>
+        <item set="install_wechat" phrase="安装wechat" id="wechat"/>
+    </checkbox>
+</root>
