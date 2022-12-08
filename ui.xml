@@ -38,6 +38,9 @@ set 当属性被选中后，及把对应的数据设置未true，若选中被取
 
         </vars>
     </export>
+
+    <text>xxx</text>
+
     <!--输入框初步设计-->
     <input bind="name" phrase="名字" length="20" vaildate="username"/>
     <input bind="passwd" phrase="密码" vaildate="passwd" readonly="true">{{name}}</input>
