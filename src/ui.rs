@@ -111,5 +111,13 @@ struct BoxView {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "tabs")]
 struct TabsView {
+    children: Vec<TabsView>,
+}
 
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "tabs")]
+struct TabsPaneView {
+    value: Option<String>,
+    selected: bool,
+    children: Vec<View1>,
 }
