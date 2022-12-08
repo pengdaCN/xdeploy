@@ -49,27 +49,32 @@ set 当属性被选中后，及把对应的数据设置未true，若选中被取
     </box>
 
     <!--单击选择其中的一个，选中之后，就只会展开改数据-->
-    <select bind="install_ty">
+    <tabs bind="install_ty">
         <!--按钮攀旁边的字-->
-        <item value="install" phrase="安装数据库">
+        <pane value="install" phrase="安装数据库">
             <!--勾选按钮，只有true和false-->
             <input phrase="数据库密码"/>
-            <check phrase="是否公开网络"/>
-            <check phrase="是否允许所有连接" selected="true"/>
-        </item>
+            <switch phrase="是否公开网络"/>
+            <switch phrase="是否允许所有连接" selected="true"/>
+        </pane>
 
         <!--默认选中项目-->
-        <item value="conn" selected="true">
+        <pane value="conn" selected="true">
             <input phrase="地址" length="10"/>
             <input phrase="登录用户名" length="20">postgres</input>
             <input phrase="登录密码" length="20"/>
             <input phrase="连接数据库" length="10" readonly="true">{{c_db_name}}</input>
-        </item>
-    </select>
+        </pane>
+    </tabs>
 
     <!--复选框-->
     <checkbox readonly="true">
         <item set="install_qq" phrase="安装qq" selected="true" id="qq" disable="true"/>
         <item set="install_wechat" phrase="安装wechat" id="wechat"/>
     </checkbox>
+
+    <radio>
+        <item phrase="设置1"/>
+        <item phrase="设置2"/>
+    </radio>
 </root>
