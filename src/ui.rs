@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 #[serde(rename_all = "root")]
 struct Layout {
     export: Export,
-
+    views: Vec<View>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -120,4 +120,16 @@ struct TabsPaneView {
     value: Option<String>,
     selected: bool,
     children: Vec<View1>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+enum View2 {
+    Box(BoxView),
+    Tabs(TabsView),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+enum View {
+    View1(View1),
+    View2(View2),
 }
