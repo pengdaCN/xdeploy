@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use std::ops::{Deref, DerefMut};
+use cursive::views::Dialog;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -158,6 +161,41 @@ enum View {
     Radio(RadioView),
     Box(BoxView),
     Tabs(TabsView),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+enum Value {
+    Str(String),
+    Bool(bool),
+    List(Vec<String>),
+}
+
+struct Values(HashMap<String, Option<Value>>);
+
+impl Deref for Values(HashMap<String, Option<Value>>) {
+    type Target = HashMap<String, Option<Value>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Values(HashMap<String, Option<Value>>) {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+struct Layer {
+    vars: Vec<(String, VarType)>,
+    view: Dialog,
+    values: Values,
+}
+
+impl Layer {
+    pub fn from_layout(layout: Layout) -> Self {
+        unreachable!()
+    }
 }
 
 #[cfg(test)]

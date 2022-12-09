@@ -1,1 +1,2 @@
 mod ui;
+mod error;
