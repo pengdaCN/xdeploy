@@ -1,7 +1,8 @@
 use std::collections::HashMap;
-use std::ops::{Deref, DerefMut};
+use std::ops::{Deref, DerefMut, Index};
 use cursive::views::Dialog;
 use serde::{Serialize, Deserialize};
+use crate::error::Error;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename = "root")]
@@ -40,7 +41,7 @@ struct Var {
     dft_value: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Ord, PartialOrd, Eq, PartialEq, Clone)]
 enum VarType {
     #[serde(rename = "str")]
     Str,
@@ -163,6 +164,58 @@ enum View {
     Tabs(TabsView),
 }
 
+impl View {
+    fn binding_id(&self) -> Option<&String> {
+        match self {
+            View::Input(view) => {
+                view.bind.as_ref()
+            }
+            View::Text(view) => {
+                None
+            }
+            View::Switch(view) => {
+                view.bind.as_ref()
+            }
+            View::Checkbox(view) => {
+                view.bind.as_ref()
+            }
+            View::Radio(view) => {
+                view.bind.as_ref()
+            }
+            View::Box(view) => {
+                None
+            }
+            View::Tabs(view) => {
+                None
+            }
+        }
+    }
+
+    fn expect_var_type(&self) -> Option<VarType> {
+        match self {
+            View::Input(_) | View::Radio(_) => {
+                Some(VarType::Str)
+            }
+            View::Switch(_) => {
+                Some(VarType::Bool)
+            }
+            View::Checkbox(_) => {
+                Some(VarType::List)
+            }
+            _ => None
+        }
+    }
+
+    fn visit_step(&self, step: usize) -> Option<&Self> {
+        if step == 0 {
+            return Some(self);
+        }
+
+        unreachable!()
+    }
+}
+
+
 #[derive(Serialize, Deserialize, Debug)]
 enum Value {
     Str(String),
@@ -172,7 +225,7 @@ enum Value {
 
 struct Values(HashMap<String, Option<Value>>);
 
-impl Deref for Values(HashMap<String, Option<Value>>) {
+impl Deref for Values {
     type Target = HashMap<String, Option<Value>>;
 
     fn deref(&self) -> &Self::Target {
@@ -180,7 +233,7 @@ impl Deref for Values(HashMap<String, Option<Value>>) {
     }
 }
 
-impl DerefMut for Values(HashMap<String, Option<Value>>) {
+impl DerefMut for Values {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -193,7 +246,70 @@ struct Layer {
 }
 
 impl Layer {
-    pub fn from_layout(layout: Layout) -> Self {
+    pub fn from_layout(layout: Layout) -> crate::Result<Self> {
+        let mut vars = Vec::new();
+        // let mut values = HashMap::new();
+        // 处理vars
+        if let Some(v) = layout.export.vars {
+            for x in v.data {
+                // 获取当前id匹配的所有view
+                let bindings: Vec<_> = layout.views.data
+                    .iter()
+                    .filter(|view| {
+                        let binding = view.binding_id();
+
+                        if let Some(binding_id) = binding {
+                            *binding_id == x.name
+                        } else {
+                            false
+                        }
+                    }).collect();
+
+                // 查询所有binding该id的view的期望类型
+                let mut types: Vec<_> = bindings
+                    .clone()
+                    .into_iter()
+                    .map(|binding| {
+                        binding.expect_var_type().expect("bug!!!")
+                    })
+                    .collect();
+                types.sort();
+                types.dedup();
+
+                if types.len() > 1 {
+                    // 引用该id的变量推断除多个类型
+                    return Err(Error::VarTypeConflict {
+                        id: x.name,
+                    });
+                }
+
+                // 推断出当前id的类型d
+                let mut ty: VarType;
+                if let Some(v) = x._type {
+                    ty = v;
+                    if let Some(infer_type) = types.get(0) {
+                        if *infer_type != ty {
+                            // 推断类型，与指定类型不匹配
+                            return Err(Error::VarTypeConflict {
+                                id: x.name,
+                            });
+                        }
+                    }
+                } else if let Some(infer_type) = types.get(0) {
+                    ty = infer_type.clone()
+                } else {
+                    return Err(Error::VarTypeNonInfer {
+                        id: x.name,
+                    });
+                }
+
+                vars.push((x.name, ty));
+            }
+        }
+
+        // 处理view中绑定的变量
+
+
         unreachable!()
     }
 }
